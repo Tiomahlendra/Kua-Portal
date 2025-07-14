@@ -1,5 +1,5 @@
-# Welcome to your Lovable project
 
+<<<<<<< HEAD
 ## Project info
 
 ## How can I edit this code?
@@ -16,6 +16,8 @@ The only requirement is having Node.js & npm installed - [install with nvm](http
 Follow these steps:
 
 ```sh
+=======
+>>>>>>> 8d731c8275166c6879e389a38770e1c62333bbad
 # Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
 
