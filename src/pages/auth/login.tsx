@@ -8,24 +8,30 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    try {
-      const res = await fetch("http://localhost/kua-backend/auth/user_login.php", {
-        method: "POST",
-        body: JSON.stringify({ username, password }),
-        headers: { "Content-Type": "application/json" }
-      });
+  try {
+    const res = await fetch("http://localhost/kua-backend/auth/user_login.php", {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+      headers: { "Content-Type": "application/json" }
+    });
 
-      const data = await res.json();
-      if (data.success) {
-        navigate(data.role === "admin" ? "/admin/dashboard" : "/user/dashboard");
-      } else {
-        alert("Login gagal: " + (data.message || ""));
-      }
-    } catch (err) {
-      alert("Gagal terhubung ke server.");
-      console.error(err);
+    const data = await res.json();
+    if (data.success) {
+      // ✅ Simpan role dan username
+      localStorage.setItem("userType", data.role);     // ← penting
+      localStorage.setItem("username", data.username); // opsional, kalau kamu butuh
+
+      // ✅ Redirect sesuai role
+      navigate(data.role === "admin" ? "/admin/dashboard" : "/user/dashboard");
+    } else {
+      alert("Login gagal: " + (data.message || ""));
     }
-  };
+  } catch (err) {
+    alert("Gagal terhubung ke server.");
+    console.error(err);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-green-100">
