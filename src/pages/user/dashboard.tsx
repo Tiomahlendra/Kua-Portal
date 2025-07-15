@@ -138,7 +138,9 @@ const DashboardUser = () => {
                           value={catatan}
                           onChange={(e) => setCatatan(e.target.value)}
                         />
-                        <Button className="w-full" onClick={handleDaftar}>Daftar Sekarang</Button>
+                       <Button className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={handleDaftar}>
+                        Daftar Sekarang
+                      </Button>
                       </div>
                     )}
                   </CardContent>

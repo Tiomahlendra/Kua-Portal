@@ -4,6 +4,19 @@
   padding: 2rem;
   text-align: center;
 }
+/* index.css atau App.css */
+
+.badge-success {
+  @apply bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.badge-warning {
+  @apply bg-yellow-400 text-black px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.badge-danger {
+  @apply bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium;
+}
 
 .logo {
   height: 6em;

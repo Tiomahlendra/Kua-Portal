@@ -116,19 +116,15 @@ const Index = () => {
             </Button>
 
             <Button 
-            size="lg" 
-            variant="outline" 
-            className="border-white text-white hover:bg-white hover:text-green-600 font-semibold"
-            onClick={() => {
-              const lokasiEl = document.getElementById("lokasi");
-              if (lokasiEl) {
-                lokasiEl.scrollIntoView({ behavior: "smooth" });
-              }
-            }}
-          >
-            <MapPin className="mr-2 h-5 w-5" />
-            Lihat Lokasi
-          </Button>
+              size="lg"
+              className="bg-white text-green-600 hover:bg-green-50 font-semibold"
+              onClick={() => {
+                document.getElementById("lokasi")?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              <MapPin className="h-5 w-5" />
+              Lihat Lokasi
+            </Button>
 
           </div>
         </div>

@@ -125,17 +125,18 @@ useEffect(() => {
   );
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return <Badge variant="outline" className="text-warning border-warning">Menunggu</Badge>;
-      case 'approved':
-        return <Badge className="bg-success text-success-foreground">Disetujui</Badge>;
-      case 'rejected':
-        return <Badge variant="destructive">Ditolak</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
+  switch (status) {
+    case 'pending':
+      return <span className="badge-warning">Menunggu</span>;
+    case 'approved':
+      return <span className="badge-success">Disetujui</span>;
+    case 'rejected':
+      return <span className="badge-danger">Ditolak</span>;
+    default:
+      return <span className="bg-gray-300 text-black px-2 py-1 rounded-full text-xs">{status}</span>;
+  }
+};
+
 
   const stats = {
     totalRequests: serviceRequests.length,
@@ -147,20 +148,35 @@ useEffect(() => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-gradient-primary text-primary-foreground shadow-elegant">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold">Dashboard Admin</h1>
-              <p className="opacity-90">Sistem Manajemen KUA Portal</p>
-            </div>
-            <Button variant="outline" onClick={handleLogout} className="border-white/20 text-white hover:bg-white/10">
-              <LogOut className="h-4 w-4 mr-2" />
-              Keluar
-            </Button>
-          </div>
-        </div>
-      </header>
+     <header className="bg-green-700 text-white shadow-md">
+  <div className="container mx-auto px-4 py-6">
+    <div className="flex justify-between items-center">
+      <div>
+        <h1 className="text-3xl font-bold">Dashboard Admin</h1>
+        <p className="text-sm opacity-90">Sistem Manajemen KUA</p>
+      </div>
+      <div className="flex items-center gap-4">
+        <button 
+          className="relative text-white hover:text-gray-200 transition"
+          onClick={() => alert('Fitur notifikasi belum tersedia')}
+        >
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">3</span>
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        </button>
+         {/* Tombol Keluar */}
+        <Button 
+          onClick={handleLogout}
+          className="bg-white text-green-700 hover:bg-green-100 border border-white rounded-md px-4 py-2 flex items-center gap-2"
+        >
+          <LogOut className="h-4 w-4" />
+          Keluar
+        </Button>
+      </div>
+    </div>
+  </div>
+</header>x  
 
       <div className="container mx-auto px-4 py-8">
         {/* Statistics Cards */}
@@ -324,17 +340,17 @@ useEffect(() => {
                                   {request.status === 'pending' && (
                                     <div className="flex gap-2">
                                       <Button 
-                                        variant="destructive" 
+                                        className="bg-red-500 hover:bg-red-600 text-white text-sm px-2 py-1 rounded"
                                         onClick={() => handleStatusUpdate(request.id, 'rejected')}
                                       >
-                                        Tolak
-                                      </Button>
-                                      <Button 
-                                        variant="success" 
-                                        onClick={() => handleStatusUpdate(request.id, 'approved')}
-                                      >
-                                        Setujui
-                                      </Button>
+                                        <XCircle className="h-4 w-4" />
+                                     <Button
+                                      className="bg-green-500 hover:bg-green-600 text-white text-sm px-2 py-1 rounded"
+                                      onClick={() => handleStatusUpdate(request.id, 'approved')}
+                                    >
+                                      <CheckCircle className="h-4 w-4" />
+                                    </Button>
+</Button>
                                     </div>
                                   )}
                                 </DialogFooter>
@@ -425,7 +441,7 @@ useEffect(() => {
                   <Settings className="h-5 w-5" />
                   Pengaturan Sistem
                 </CardTitle>
-                <CardDescription>Konfigurasi dan pengaturan sistem KUA Portal</CardDescription>
+                <CardDescription>Konfigurasi dan pengaturan sistem KUA Benai</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -433,11 +449,11 @@ useEffect(() => {
                     <h3 className="text-lg font-semibold">Pengaturan Umum</h3>
                     <div className="space-y-2">
                       <Label htmlFor="kua-name">Nama KUA</Label>
-                      <Input id="kua-name" defaultValue="KUA Kecamatan Contoh" />
+                      <Input id="kua-name" defaultValue="KUA Kecamatan Benai" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="kua-address">Alamat</Label>
-                      <Textarea id="kua-address" defaultValue="Jl. Contoh No. 123, Kota Contoh" />
+                      <Textarea id="kua-address" defaultValue="Jl. Jend. Sudirman Benai. Kua Benai" />
                     </div>
                   </div>
                   <div className="space-y-4">
