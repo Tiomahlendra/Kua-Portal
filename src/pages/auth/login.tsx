@@ -7,30 +7,32 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-  try {
-    const res = await fetch("http://localhost/kua-backend/auth/user_login.php", {
-      method: "POST",
-      body: JSON.stringify({ username, password }),
-      headers: { "Content-Type": "application/json" }
-    });
+  // Di halaman login (misalnya LoginUser.tsx)
+const handleLogin = async () => {
+  const res = await fetch("http://localhost/kua-backend/auth/user_login.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
 
-    const data = await res.json();
-    if (data.success) {
-      // ✅ Simpan role dan username
-      localStorage.setItem("userType", data.role);     // ← penting
-      localStorage.setItem("username", data.username); // opsional, kalau kamu butuh
+  const result = await res.json();
 
-      // ✅ Redirect sesuai role
-      navigate(data.role === "admin" ? "/admin/dashboard" : "/user/dashboard");
+  if (result.success) {
+    const user = result.user;
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("userType", "admin");
+
+    // Arahkan sesuai role
+    if (user.role === "admin") {
+      navigate("/admin/dashboard");
     } else {
-      alert("Login gagal: " + (data.message || ""));
+      navigate("/user/dashboard");
     }
-  } catch (err) {
-    alert("Gagal terhubung ke server.");
-    console.error(err);
+  } else {
+    alert("Login gagal");
   }
 };
+
 
 
   return (

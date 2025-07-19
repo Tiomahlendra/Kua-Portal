@@ -45,47 +45,24 @@ const AdminDashboard = () => {
   const { toast } = useToast();
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  
+  const [permohonan, setPermohonan] = useState([]);
+
   // Mock data for service requests
-  const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([
-    {
-      id: "001",
-      type: "Pernikahan",
-      applicantName: "Ahmad Budi",
-      submissionDate: "2024-01-15",
-      status: "pending",
-      weddingDate: "2024-02-14",
-      groomName: "Ahmad Budi",
-      brideName: "Siti Aminah",
-      documents: ["KTP", "KK", "Surat Nikah"]
-    },
-    {
-      id: "002",
-      type: "Rujuk",
-      applicantName: "Hasan Ali",
-      submissionDate: "2024-01-14",
-      status: "approved",
-      documents: ["KTP", "Surat Cerai"]
-    },
-    {
-      id: "003",
-      type: "Pernikahan",
-      applicantName: "Muhammad Yusuf",
-      submissionDate: "2024-01-13",
-      status: "pending",
-      weddingDate: "2024-03-20",
-      groomName: "Muhammad Yusuf",
-      brideName: "Fatimah",
-      documents: ["KTP", "KK", "Surat Keterangan"]
-    }
-  ]);
+ const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
 
 useEffect(() => {
-  const userType = localStorage.getItem('userType');
-  if (userType !== 'admin') {
-    navigate('/auth/login'); // atau ke '/' atau ke mana pun halaman loginmu
-  }
-}, [navigate]);
+  const fetchPermohonan = async () => {
+    try {
+      const res = await fetch("http://localhost/kua-backend/admin/layanan.php");
+      const data = await res.json();
+      setPermohonan(data);
+    } catch (error) {
+      console.error("Gagal fetch data layanan", error);
+    }
+  };
+
+  fetchPermohonan();
+}, []);
 
 
   const handleStatusUpdate = async (requestId: string, newStatus: 'approved' | 'rejected') => {

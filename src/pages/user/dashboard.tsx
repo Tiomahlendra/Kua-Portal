@@ -4,7 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Heart, Users, BookOpen, FileText, Bell, MapPin, Clock, Phone } from "lucide-react";
-
+interface User {
+  id: string;
+  nama: string;
+  email: string;
+  nik: string;
+  // tambahkan field lain sesuai response login
+}
 const DashboardUser = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -13,16 +19,25 @@ const DashboardUser = () => {
   const [catatan, setCatatan] = useState("");
   const [riwayat, setRiwayat] = useState<any[]>([]);
   const [notifikasi, setNotifikasi] = useState(true);
+  const [files, setFiles] = useState<FileList | null>(null);
+  
 
-  useEffect(() => {
-    const data = localStorage.getItem("user");
-    if (data) {
-      setUser(JSON.parse(data));
-    }
+ useEffect(() => {
+  const data = localStorage.getItem("user");
+  console.log("Ditemukan data di localStorage:", data);
 
-    // fetch riwayat dari backend
-    setRiwayat([]); // default kosong, isi nanti dari backend
-  }, []);
+  if (data) {
+    const parsed = JSON.parse(data);
+    console.log("Parsed user:", parsed);
+    setUser(parsed);
+
+    fetch(`http://localhost/kua-backend/user/dashboard.php?user_id=${parsed.id}`)
+      .then((res) => res.json())
+      .then((data) => setRiwayat(data))
+      .catch((err) => console.error("Gagal ambil riwayat:", err));
+  }
+}, []);
+
 
   const services = [
     {
@@ -58,33 +73,63 @@ const DashboardUser = () => {
       requirements: ["KTP", "Dokumen Pendukung", "Surat Pengantar RT/RW"]
     }
   ];
+const currentService = services.find(s => s.id === selectedService);
 
-  const handleDaftar = async () => {
-    if (!selectedService) return;
-    const formData = new FormData();
-    formData.append("layanan", selectedService);
-    formData.append("catatan", catatan);
-    formData.append("user_id", user.id);
+ const handleDaftar = async () => {
+  if (!selectedService || !user) return;
 
-    try {
-      const res = await fetch("http://localhost/kua-backend/layanan.php", {
-        method: "POST",
-        body: formData
-      });
+  const formData = new FormData(); // ✅ FORM DATA DIBUAT DULUAN
 
-      const result = await res.json();
-      if (result.success) {
-        toast({
-          title: "Berhasil",
-          description: "Terimakasih! Permintaan Anda sedang kami proses. Mohon tunggu sebentar admin akan memverifikasi data anda.",
-        });
-        setSelectedService(null);
-        setCatatan("");
-      }
-    } catch (err) {
-      toast({ title: "Gagal", description: "Terjadi kesalahan." });
-    }
-  };
+  formData.append("layanan", selectedService);
+  formData.append("catatan", catatan);
+  formData.append("user_id", user.id);
+
+  if (files) {
+    Array.from(files).forEach((file) => {
+      formData.append("files[]", file);
+    });
+  }
+
+  try {
+    const res = await fetch("http://localhost/kua-backend/user/ajukan_layanan.php", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await res.json();
+    console.log("Respon dari backend:", result);
+if (!result.success) {
+  toast({
+    title: "Gagal Ajukan Layanan",
+    description: result.message || "Ada masalah saat mengirim data.",
+    variant: "destructive",
+  });
+  return;
+}
+
+   if (result.success) {
+  toast({
+    title: "Berhasil Mengajukan Layanan",
+    description: "Permintaan Anda sedang diproses. Admin akan segera memvalidasi.",
+    duration: 5000,
+  });
+
+  setSelectedService(null);
+  setCatatan("");
+  setFiles(null);
+
+  fetch(`http://localhost/kua-backend/user/dashboard.php?user_id=${user.id}`)
+    .then((res) => res.json())
+    .then((data) => setRiwayat(data));
+}
+
+  } catch (err) {
+    console.error("AJAX Error:", err);
+    toast({ title: "Gagal", description: "Terjadi kesalahan saat mengirim data." });
+  }
+};
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50">
@@ -112,12 +157,12 @@ const DashboardUser = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {services.map((service) => {
               const Icon = service.icon;
-              const isActive = selectedService === service.title;
+              const isActive = selectedService === service.id;
               return (
                 <Card
                   key={service.id}
                   className={`cursor-pointer transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 ${isActive ? "ring-2 ring-green-500 shadow-lg" : ""}`}
-                  onClick={() => setSelectedService(service.title)}
+                  onClick={() => setSelectedService(service.id)}
                 >
                   <CardHeader className="text-center pb-2">
                     <div className={`w-14 h-14 ${service.color} rounded-full mx-auto flex items-center justify-center mb-2`}>
@@ -128,20 +173,63 @@ const DashboardUser = () => {
                   <CardContent className="text-sm text-gray-600 text-center">
                     <p>{service.description}</p>
                     {isActive && (
-                      <div className="mt-2">
-                        <ul className="text-left list-disc list-inside text-xs mb-2">
-                          {service.requirements.map((req, i) => <li key={i}>{req}</li>)}
-                        </ul>
-                        <textarea
-                          placeholder="Catatan tambahan..."
-                          className="w-full border rounded p-1 mb-2"
-                          value={catatan}
-                          onChange={(e) => setCatatan(e.target.value)}
-                        />
-                       <Button className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={handleDaftar}>
-                        Daftar Sekarang
-                      </Button>
-                      </div>
+                      
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleDaftar();
+                        console.log("FORMDATA DEBUG:", {
+                        user_id: user?.id,
+                        layanan: selectedService,
+                        catatan,
+                        files
+                      });
+
+                      }}
+                      className="mt-2 space-y-2 text-left"
+                    >
+                      <ul className="list-disc list-inside text-xs text-gray-700 mb-2">
+                        {service.requirements.map((req, i) => (
+                          <li key={i}>
+                            <label className="block text-xs mb-1">{req}</label>
+                            <input
+                              type="file"
+                              name={`file_${i}`}
+                              required
+                              onChange={(e) => {
+                              if (e.target.files) {
+                                const newFiles = new DataTransfer();
+                                if (files) {
+                                  Array.from(files).forEach((f) => newFiles.items.add(f));
+                                }
+                                newFiles.items.add(e.target.files[0]);
+                                setFiles(newFiles.files);
+                              }
+                            }}
+
+                              className="block w-full border text-sm px-2 py-1 rounded bg-white text-gray-800"
+                            />
+                          </li>
+                        ))}
+                      </ul>
+                        {isActive && (
+                          <span className="inline-block text-xs text-green-600 font-medium bg-green-100 px-2 py-1 rounded-full mb-2">
+                            Formulir Aktif
+                          </span>
+                        )}
+
+                      <label className="text-xs mb-1 block">Catatan Tambahan</label>
+                      <textarea
+                        placeholder="Tuliskan catatan tambahan..."
+                        className="w-full border rounded p-2 text-sm"
+                        value={catatan}
+                        onChange={(e) => setCatatan(e.target.value)}
+                      />
+
+                    <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={handleDaftar}>
+                      Daftar Sekarang
+                    </Button>
+                    </form>
                     )}
                   </CardContent>
                 </Card>
